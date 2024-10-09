@@ -3,11 +3,12 @@ package boltbrowserweb
 import (
 	"bytes"
 	"fmt"
-	"github.com/boltdb/bolt"
+
 	"github.com/gin-gonic/gin"
+	"go.etcd.io/bbolt"
 )
 
-var Db *bolt.DB
+var Db *bbolt.DB
 
 func Index(c *gin.Context) {
 
@@ -21,7 +22,7 @@ func CreateBucket(c *gin.Context) {
 		c.String(200, "no bucket name | n")
 	}
 
-	Db.Update(func(tx *bolt.Tx) error {
+	Db.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(c.PostForm("bucket")))
 		b = b
 		if err != nil {
@@ -39,7 +40,7 @@ func DeleteBucket(c *gin.Context) {
 		c.String(200, "no bucket name | n")
 	}
 
-	Db.Update(func(tx *bolt.Tx) error {
+	Db.Update(func(tx *bbolt.Tx) error {
 		err := tx.DeleteBucket([]byte(c.PostForm("bucket")))
 
 		if err != nil {
@@ -61,7 +62,7 @@ func DeleteKey(c *gin.Context) {
 		c.String(200, "no bucket name or key | n")
 	}
 
-	Db.Update(func(tx *bolt.Tx) error {
+	Db.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(c.PostForm("bucket")))
 		b = b
 		if err != nil {
@@ -91,7 +92,7 @@ func Put(c *gin.Context) {
 		c.String(200, "no bucket name or key | n")
 	}
 
-	Db.Update(func(tx *bolt.Tx) error {
+	Db.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(c.PostForm("bucket")))
 		b = b
 		if err != nil {
@@ -125,7 +126,7 @@ func Get(c *gin.Context) {
 		c.JSON(200, res)
 	}
 
-	Db.View(func(tx *bolt.Tx) error {
+	Db.View(func(tx *bbolt.Tx) error {
 
 		b := tx.Bucket([]byte(c.PostForm("bucket")))
 
@@ -172,7 +173,7 @@ func PrefixScan(c *gin.Context) {
 
 	if c.PostForm("key") == "" {
 
-		Db.View(func(tx *bolt.Tx) error {
+		Db.View(func(tx *bbolt.Tx) error {
 			// Assume bucket exists and has keys
 			b := tx.Bucket([]byte(c.PostForm("bucket")))
 
@@ -202,7 +203,7 @@ func PrefixScan(c *gin.Context) {
 
 	} else {
 
-		Db.View(func(tx *bolt.Tx) error {
+		Db.View(func(tx *bbolt.Tx) error {
 			// Assume bucket exists and has keys
 			b := tx.Bucket([]byte(c.PostForm("bucket"))).Cursor()
 
@@ -239,9 +240,9 @@ func Buckets(c *gin.Context) {
 
 	res := []string{}
 
-	Db.View(func(tx *bolt.Tx) error {
+	Db.View(func(tx *bbolt.Tx) error {
 
-		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+		return tx.ForEach(func(name []byte, _ *bbolt.Bucket) error {
 
 			b := []string{string(name)}
 			res = append(res, b...)

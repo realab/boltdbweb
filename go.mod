@@ -3,9 +3,9 @@ module github.com/evnix/boltdbweb
 go 1.23.2
 
 require (
-	github.com/boltdb/bolt v1.3.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/sirupsen/logrus v1.9.3
+	go.etcd.io/bbolt v1.3.11
 )
 
 require (
